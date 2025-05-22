@@ -1,87 +1,116 @@
 ---
-title: 'Development'
-description: 'Preview changes locally to update your docs'
+title: "Development"
+description: "Integrate the Leach AI Assistant into your website or application in just a few lines of code. Below are the methods for HTML, React, and Next.js environments."
 ---
 
 <Info>
-  **Prerequisite**: Please install Node.js (version 19 or higher) before proceeding. <br />
-  Please upgrade to ```docs.json``` before proceeding and delete the legacy ```mint.json``` file.
+  **Prerequisite: Please install Node.js (version 18 or higher) before proceeding. **
+
+  **Please upgrade your**`.env`**before proceeding and add ** `LEACH_API_KEY`**into file.** 
 </Info>
 
-Follow these steps to install and run Mintlify on your operating system:
-
-**Step 1**: Install Mintlify:
+**HTML Integration: To embed the assistant in any static HTML site, paste the following script before the closing **`</body>`**tag:** 
 
 <CodeGroup>
 
-  ```bash npm
-  npm i -g mintlify
-  ```
-
-```bash yarn
-yarn global add mintlify
+```javascript filename [expandable]
+<!-- Leach AI Assistant Embed Code -->
+<script>
+  (function(d, t) {
+    var g = d.createElement(t),
+        s = d.getElementsByTagName(t)[0];
+    g.src = "https://cdn.leach.ai/assistant.js";
+    g.async = true;
+    g.setAttribute("data-assistant-id", "API KEY HERE");
+    g.setAttribute("data-domain", "https:example.com");
+    s.parentNode.insertBefore(g, s);
+  }(document, "script"));
+</script>
 ```
 
 </CodeGroup>
 
-**Step 2**: Navigate to the docs directory (where the `docs.json` file is located) and execute the following command:
+**React Integration**: Add the Leach AI Assistant to any React app by creating a new component like this:
 
 ```bash
-mintlify dev
+import { useEffect } from 'react';
+
+const LeachAIAssistant = () => {
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.src = "https://cdn.leach.ai/assistant.js";
+    script.async = true;
+    script.setAttribute(
+      "data-assistant-id",
+      import.meta.env.VITE_LEACH_API_KEY || process.env.REACT_APP_LEACH_API_KEY
+    );
+    script.setAttribute("data-domain", "https://example.com");
+
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  return null;
+};
+
+export default LeachAIAssistant;
 ```
 
-A local preview of your documentation will be available at `http://localhost:3000`.
+A local preview of your Ai assistant will be available at`http://localhost:3000`.
 
-### Custom Ports
+### Next.js Integration
 
-By default, Mintlify uses port 3000. You can customize the port Mintlify runs on by using the `--port` flag. To run Mintlify on port 3333, for instance, use this command:
+For Next.js apps, use the `<Script />` component for optimized loading:
 
-```bash
-mintlify dev --port 3333
+```typescript
+import Script from 'next/script';
+
+const LeachAIAssistant = () => {
+  const assistantId = process.env.NEXT_PUBLIC_LEACH_API_KEY;
+
+  return (
+    <Script
+      id="leach-ai-assistant"
+      strategy="afterInteractive"
+      dangerouslySetInnerHTML={{
+        __html: `
+          (function(d, t) {
+            var g = d.createElement(t),
+                s = d.getElementsByTagName(t)[0];
+            g.src = "https://cdn.leach.ai/assistant.js";
+            g.async = true;
+            g.setAttribute("data-assistant-id", "${assistantId}");
+            g.setAttribute("data-domain", window.location.origin);
+            s.parentNode.insertBefore(g, s);
+          }(document, "script"));
+        `,
+      }}
+    />
+  );
+};
+
+export default LeachAIAssistant;
 ```
 
-If you attempt to run Mintlify on a port that's already in use, it will use the next available port:
+Add it to your `_app.js` or layout component:
 
-```md
-Port 3000 is already in use. Trying 3001 instead.
+```javascript
+import LeachAIAssistant from '../components/LeachAIAssistant';
+
+export default function MyApp({ Component, pageProps }) {
+  return (
+    <>
+      <Component {...pageProps} />
+      <LeachAIAssistant />
+    </>
+  );
+}
 ```
 
-## Mintlify Versions
-
-Please note that each CLI release is associated with a specific version of Mintlify. If your local website doesn't align with the production version, please update the CLI:
-
-<CodeGroup>
-
-```bash npm
-npm i -g mintlify@latest
-```
-
-```bash yarn
-yarn global upgrade mintlify
-```
-
-</CodeGroup>
-
-## Validating Links
-
-The CLI can assist with validating reference links made in your documentation. To identify any broken links, use the following command:
-
-```bash
-mintlify broken-links
-```
-
-## Deployment
-
-<Tip>
-  Unlimited editors available under the [Pro
-  Plan](https://mintlify.com/pricing) and above.
-</Tip>
-
-If the deployment is successful, you should see the following:
-
-<Frame>
-  <img src="/images/checks-passed.png" style={{ borderRadius: '0.5rem' }} />
-</Frame>
+If the deployment is successful, you should see the AI assistant in your application:
 
 ## Code Formatting
 
@@ -90,18 +119,23 @@ We suggest using extensions on your IDE to recognize and format MDX. If you're a
 ## Troubleshooting
 
 <AccordionGroup>
-  <Accordion title='Error: Could not load the "sharp" module using the darwin-arm64 runtime'>
-
+  <Accordion title="Having issues with your Leach AI Assistant? Here are a few common problems and how to fix them:">
     This may be due to an outdated version of node. Try the following:
-    1. Remove the currently-installed version of mintlify: `npm remove -g mintlify`
-    2. Upgrade to Node v19 or higher.
-    3. Reinstall mintlify: `npm install -g mintlify`
-  </Accordion>
 
-  <Accordion title="Issue: Encountering an unknown error">
-  
-    Solution: Go to the root of your device and delete the \~/.mintlify folder. Afterwards, run `mintlify dev` again.
+    1. Upgrade to Node v19 or higher.
+    2. Invalid or Missing API Key
+
+       > If your assistant isn’t appearing or loading correctly, the `LEACH_API_KEY` might be incorrect or missing in your `.env` file.
+       >
+       > `LEACH_API_KEY = your-assistant-api-id-here`
+       > - For **React (Vite/CRA)**: use `VITE_` or `REACT_APP_` prefix.
+       > - For **Next.js**: use `NEXT_PUBLIC_` prefix.
+    3. Bot Not Active or UI Not Loading
+
+       > If the embed code is correct but nothing shows on your site:
+       > - Ensure the bot is **active** and published from the **Leach AI Dashboard**.
+       > - Make sure the correct **domain** is set in your embed code or assistant settings.
+       > - Clear cache or hard refresh your browser.
+       > - Open developer tools and check the **Console** for any script or CORS errors.
   </Accordion>
 </AccordionGroup>
-
-Curious about what changed in the CLI version? [Check out the CLI changelog.](https://www.npmjs.com/package/mintlify?activeTab=versions)
